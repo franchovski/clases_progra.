@@ -1,0 +1,70 @@
+import random
+#print("***Hola bienbenido al juiego***")
+#entrada  = input("ingrese su nonmbre")
+#if len(entrada) < 4 : 
+#   r print("Su nombre es muay corto, ingrese nuevanmente")
+#while not entrada.isprintable() or len(entrada) < 4 :
+#    print("Su nombre es invalido, ingreese nuevamente")
+#    if len(e ntrada) <= 4 and entrada.isprintable():
+#        print("Nombre Ingresado Correctamente")
+#        break
+
+#INTENTOS = 5           # cantidad predeterminada de intentos
+#MIN_NUM, MAX_NUM = 1, 100  # rango de números
+#numero_secreto = random.randint(MIN_NUM, MAX_NUM)
+#print(f"He elegido un número entre {MIN_NUM} y {MAX_NUM}. Tienes {INTENTOS} intentos para adivinarlo.")
+#for intento in range(1, INTENTOS + 1):
+#    while True:
+#        try:
+#            adivinanza = int(input(f"Intento {intento}: ¿Cuál es tu suposición? "))
+#            if MIN_NUM <= adivinanza <= MAX_NUM:
+#                break
+#            else:
+#                print(f"Por favor, ingresa un número entre {MIN_NUM} y {MAX_NUM}.")
+#        except ValueError:
+#            print("Entrada inválida. Por favor, ingresa un número entero.")
+
+#    if adivinanza < numero_secreto:
+#        print(" MAS.")
+#    elif adivinanza > numero_secreto:
+#        print(" Menos .")
+#    else:
+#        print(f"¡Felicidades, {entrada}! Has adivinado el número secreto {numero_secreto} en {intento} intentos.")
+#        break
+#    if intento == INTENTOS:
+#        print(f"Lo siento, {entrada}. Has agotado tus intentos. El número secreto era {numero_secreto}.")           
+print("-----Registro de libros-----")
+lista_libros = [
+    
+    {
+    'titulo': 'papelucho',
+    'autor': 'Marcela Paz',
+    'año': 1947,
+    'editorial': 'Nacional'
+    },
+
+    { 
+    'titulo' : ' El silencio de los inocentes',
+    'autor'  : 'Thomas Harris',
+    'año'    : 1988,
+    'editorial': 'Bantam Books'
+    }  
+]
+print(lista_libros) 
+
+while True:
+    entrada_titulo = input("Ingrese el título del libro: ")
+    entrada_autor = input("Ingrese el autor del libro: ")   
+    enttrada_año = input("Ingrese el año de publicación del libro: ")
+    lista_libros.append({'titulo': entrada_titulo, 'autor': entrada_autor, 'año': enttrada_año})
+    print("Libro agregado exitosamente.")
+    print(lista_libros)
+    continuar = input("¿Desea agregar otro libro? (s/n): ")
+    if continuar == 'n':
+        break
+    else:
+        continue    
+    
+for i in range(len(lista_libros)):
+    print(lista_libros[i]['año'], lista_libros['titulo'])
+    
