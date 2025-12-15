@@ -1,0 +1,88 @@
+print("****Hola bienvenido a Pybooks****")
+
+Productos =[
+    {
+    '8475HD':['HP', 15.6 ,'8GB', 'DD', '1TB', 'Intel i7', 'NvidiaGTX1050'] ,   
+    '2175HD':['acer', 14 ,'4GB', 'SSD', '512GB', 'Intel i7', 'NvidiaGTX1050'] ,   
+    'JjFHD': ['Asus', 14 ,'16GB', 'SSD', '256GB', 'Intel i5', 'NvidiaRTX2080Ti'] ,   
+    'fGdxHD':['HP', 15.6 ,'12GB', 'DD', '1TB', 'Intel i5', 'Integrada'] ,   
+    'GF75HD':['Asus', 15.6 ,'12GB', 'DD', '1TB', 'Intel i3', 'NvidiaGTX1050'] ,   
+    '123FHD':['Acer', 14 ,'6GB', 'DD', '1TB', 'AMD Ryzen 7', 'Integrada'] ,  
+    '342FHD':['Acer', 15.6 ,'8GB', 'DD', '1TB', 'AMD Ryzen 5', 'NvidiaGTX1050'] ,   
+    'UWU131HD':['Dell', 15.6 ,'8GB', 'DD', '1TB', 'AMD Ryzen 5', 'NvidiaGTX1050'] ,   
+    }
+]
+
+Stock = {'8475HD': [383990, 10], '2175HD': [327990, 4], 'JjFHD': [424990, 1],
+        'fGdxHD': [664990, 21], 'GF75HD': [749990, 2], '123FHD': [290890, 32],
+        '342FHD': [444990, 7], 'UWU131HD': [349990, 1], 'FS1230HD': [249990, 0]
+        }
+
+añadidos = 0 
+
+#MISMOS DATOS QUE CON LA FUNCION DE ABAJO
+def Stock_marca(productos, stock):
+    marca_buscar = input("Ingrese la marca que desea buscar: ").lower()
+    encontrados = False
+    for key, value in productos[0].items():
+        if value[0].lower() == marca_buscar:
+            cantidad = stock.get(key, (None, 0))
+            cantidad = cantidad[1]
+            print(f"De la Marca: {value[0]} | Stock: {cantidad}")
+            encontrados = True
+    if not encontrados:
+        print("No se encontraron productos de esa marca.")
+    menu()
+    
+    
+    
+
+def buscar_precio():
+    try:
+        precio_maximo = int(input("Ingrese el precio maximo: "))
+        encontrados = False
+        for key, value in Stock.items():
+            if value[0] <= precio_maximo:
+                producto_info = Productos[0].get(key, None)
+                if producto_info:
+                    print(f"Producto: {key} | Precio: {value[0]} | Marca: {producto_info[0]}")
+                    encontrados = True
+        if not encontrados:
+            print("No se encontraron productos dentro de ese rango de precio.")
+    except ValueError:
+        print("Por favor, ingrese un numero valido.")
+    menu()
+#al final termine reescribiendo la funcion para que funcione, porque no se de que fomra puedo hacer que una funcion funcione sin parametros(aplica para los otros casos, reescrribi el codigo por lo bajo 6 veces aaaaaaaaaaaaaaaaaaaaaaaaaa)
+
+
+
+def ordenar_producos(productos, stock):
+    productos_ordenados = sorted(stock.items(), key=lambda x: x[1][0])
+    for key, value in productos_ordenados:
+        producto_info = productos[0].get(key, None)
+        if producto_info:
+            print(f"Producto: {key} | Precio: {value[0]} | Marca: {producto_info[0]}")
+    menu()
+
+def menu ():
+    print("1. stock Marca")
+    print("2.Busqueda por precio")
+    print("3.Listado de productos")
+    print('4.Salir')
+    opcion = (input("Ingrese una opcion: "))
+    if opcion == '1':
+        Stock_marca(Productos,Stock)
+    elif opcion == '2':
+        buscar_precio()
+    elif opcion == '3':
+        ordenar_producos(Productos,Stock)
+        menu()
+    elif opcion == '4':
+        print("Gracias por su visita")
+    else:
+        print("Opcion no valida")
+        menu()
+    
+
+
+menu()
