@@ -1,0 +1,316 @@
+#hospital system: un systema clinico para pacientes.
+import json
+from datetime import datetime
+import tkinter as tk
+from tkinter import ttk, messagebox
+import os
+import hashlib 
+import ramdom
+from random import randint
+import binascii
+
+class GestorFichasClinicas:
+    def __init__(self, archivo="pacientes.json"):
+        self.archivo = archivo
+        self.pacientes = self.cargar_pacientes()
+    
+    def cargar_pacientes(self):
+        try:
+            with open(self.archivo, 'r') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            return {}
+    
+    def guardar_pacientes(self):
+        with open(self.archivo, 'w') as f:
+            json.dump(self.pacientes, f, indent=2)
+    
+    def agregar_paciente(self, id_paciente, nombre, edad, diagnostico):
+        if id_paciente in self.pacientes:
+            print("El paciente ya existe.")
+            return
+        
+        self.pacientes[id_paciente] = {
+            "nombre": nombre,
+            "edad": edad,
+            "diagnostico": diagnostico,
+            "estado": "Activo",
+            "fecha_registro": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        self.guardar_pacientes()
+        print(f"Paciente {nombre} agregado exitosamente.")
+    
+    def eliminar_paciente(self, id_paciente):
+        if id_paciente in self.pacientes:
+            nombre = self.pacientes[id_paciente]["nombre"]
+            del self.pacientes[id_paciente]
+            self.guardar_pacientes()
+            print(f"Paciente {nombre} eliminado.")
+        else:
+            print("Paciente no encontrado.")
+    
+    def actualizar_estado(self, id_paciente, nuevo_estado):
+        if id_paciente in self.pacientes:
+            self.pacientes[id_paciente]["estado"] = nuevo_estado
+            self.guardar_pacientes()
+            print(f"Estado actualizado a: {nuevo_estado}")
+        else:
+            print("Paciente no encontrado.")
+    
+    def mostrar_ficha(self, id_paciente):
+        if id_paciente in self.pacientes:
+            p = self.pacientes[id_paciente]
+            print(f"\n--- Ficha Clínica ---")
+            print(f"ID: {id_paciente}")
+            print(f"Nombre: {p['nombre']}")
+            print(f"Edad: {p['edad']}")
+            print(f"Diagnóstico: {p['diagnostico']}")
+            print(f"Estado: {p['estado']}")
+            print(f"Fecha de Registro: {p['fecha_registro']}")
+        else:
+            print("Paciente no encontrado.")
+    
+    def listar_pacientes(self):
+        if not self.pacientes:
+            print("No hay pacientes registrados.")
+            return
+        print("\n--- Lista de Pacientes ---")
+        for id_p, datos in self.pacientes.items():
+            print(f"ID: {id_p} | {datos['nombre']} | Estado: {datos['estado']}")
+
+# Ejemplo de uso
+if __name__ == "__main__":
+    gestor = GestorFichasClinicas()
+    
+    # Agregar pacientes
+    gestor.agregar_paciente("001", "Juan Pérez", 45, "Diabetes")
+    gestor.agregar_paciente("002", "María López", 38, "Hipertensión")
+    
+    # Mostrar ficha
+    gestor.mostrar_ficha("001")
+    
+    # Actualizar estado
+    gestor.actualizar_estado("001", "En Tratamiento")
+    
+    # Listar pacientes
+    gestor.listar_pacientes()
+    
+    # Eliminar paciente
+    gestor.eliminar_paciente("002")
+    
+    # Interfaz gráfica con tkinter
+
+
+    class InterfazHospitalaria:
+        def __init__(self, root, gestor):
+            self.gestor = gestor
+            self.root = root
+            self.root.title("Sistema Hospitalario")
+            self.root.geometry("600x500")
+            
+            # Frame principal
+            frame_principal = ttk.Frame(root, padding="10")
+            frame_principal.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+            
+            # Título
+            ttk.Label(frame_principal, text="Gestión de Fichas Clínicas", font=("Arial", 14, "bold")).grid(row=0, column=0, columnspan=2, pady=10)
+            
+            # Entradas
+            ttk.Label(frame_principal, text="ID:").grid(row=1, column=0, sticky=tk.W)
+            self.entry_id = ttk.Entry(frame_principal)
+            self.entry_id.grid(row=1, column=1)
+            
+            ttk.Label(frame_principal, text="Nombre:").grid(row=2, column=0, sticky=tk.W)
+            self.entry_nombre = ttk.Entry(frame_principal)
+            self.entry_nombre.grid(row=2, column=1)
+            
+            ttk.Label(frame_principal, text="Edad:").grid(row=3, column=0, sticky=tk.W)
+            self.entry_edad = ttk.Entry(frame_principal)
+            self.entry_edad.grid(row=3, column=1)
+            
+            ttk.Label(frame_principal, text="Diagnóstico:").grid(row=4, column=0, sticky=tk.W)
+            self.entry_diagnostico = ttk.Entry(frame_principal)
+            self.entry_diagnostico.grid(row=4, column=1)
+            
+            # Botones
+            ttk.Button(frame_principal, text="Agregar", command=self.agregar).grid(row=5, column=0, pady=10)
+            ttk.Button(frame_principal, text="Eliminar", command=self.eliminar).grid(row=5, column=1)
+            ttk.Button(frame_principal, text="Listar", command=self.listar).grid(row=6, column=0)
+            ttk.Button(frame_principal, text="Ver Ficha", command=self.ver_ficha).grid(row=6, column=1)
+        
+        def agregar(self):
+            try:
+                self.gestor.agregar_paciente(self.entry_id.get(), self.entry_nombre.get(), int(self.entry_edad.get()), self.entry_diagnostico.get())
+                messagebox.showinfo("Éxito", "Paciente agregado")
+                self.limpiar()
+            except Exception as e:
+                messagebox.showerror("Error", str(e))
+        
+        def eliminar(self):
+            self.gestor.eliminar_paciente(self.entry_id.get())
+            self.limpiar()
+        
+        def listar(self):
+            self.gestor.listar_pacientes()
+        
+        def ver_ficha(self):
+            self.gestor.mostrar_ficha(self.entry_id.get())
+        
+        def limpiar(self):
+            self.entry_id.delete(0, tk.END)
+            self.entry_nombre.delete(0, tk.END)
+            self.entry_edad.delete(0, tk.END)
+            self.entry_diagnostico.delete(0, tk.END)
+
+    root = tk.Tk()
+    gestor = GestorFichasClinicas()
+    interfaz = InterfazHospitalaria(root, gestor)
+    root.mainloop()
+    
+    class GestorUsuarios:
+        def __init__(self, archivo="usuarios.json"):
+            self.archivo = archivo
+            self.usuarios = self._cargar()
+            if not self.usuarios:
+                # crear usuario por defecto admin/admin si no existe ninguno
+                self.crear_usuario("admin", "admin")
+
+        def _cargar(self):
+            try:
+                with open(self.archivo, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except FileNotFoundError:
+                return {}
+
+        def _guardar(self):
+            with open(self.archivo, "w", encoding="utf-8") as f:
+                json.dump(self.usuarios, f, indent=2)
+
+        def _hash_password(self, password):
+            salt = os.urandom(16)
+            dk = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, 100000)
+            return f"{binascii.hexlify(salt).decode()}:{binascii.hexlify(dk).decode()}"
+
+        def _verify_password(self, stored, provided):
+            try:
+                salt_hex, dk_hex = stored.split(":")
+                salt = binascii.unhexlify(salt_hex)
+                dk = hashlib.pbkdf2_hmac("sha256", provided.encode("utf-8"), salt, 100000)
+                return binascii.hexlify(dk).decode() == dk_hex
+            except Exception:
+                return False
+
+        def crear_usuario(self, usuario, password):
+            if usuario in self.usuarios:
+                return False
+            self.usuarios[usuario] = {"pwd": self._hash_password(password)}
+            self._guardar()
+            return True
+
+        def autenticar(self, usuario, password):
+            if usuario not in self.usuarios:
+                return False
+            return self._verify_password(self.usuarios[usuario]["pwd"], password)
+
+
+    def lanzar_aplicacion(usuario):
+        root_app = tk.Tk()
+        root_app.title(f"Sistema Hospitalario - Usuario: {usuario}")
+        root_app.geometry("600x500")
+        gestor_fichas = GestorFichasClinicas()
+        interfaz = InterfazHospitalaria(root_app, gestor_fichas)
+        root_app.mainloop()
+
+
+    class VentanaRegistro(tk.Toplevel):
+        def __init__(self, parent, gestor_usuarios):
+            super().__init__(parent)
+            self.title("Registrar usuario")
+            self.gestor = gestor_usuarios
+            self.resizable(False, False)
+
+            ttk.Label(self, text="Usuario:").grid(row=0, column=0, padx=8, pady=6, sticky=tk.W)
+            self.entry_user = ttk.Entry(self)
+            self.entry_user.grid(row=0, column=1, padx=8, pady=6)
+
+            ttk.Label(self, text="Contraseña:").grid(row=1, column=0, padx=8, pady=6, sticky=tk.W)
+            self.entry_pwd = ttk.Entry(self, show="*")
+            self.entry_pwd.grid(row=1, column=1, padx=8, pady=6)
+
+            ttk.Label(self, text="Confirmar:").grid(row=2, column=0, padx=8, pady=6, sticky=tk.W)
+            self.entry_confirm = ttk.Entry(self, show="*")
+            self.entry_confirm.grid(row=2, column=1, padx=8, pady=6)
+
+            ttk.Button(self, text="Crear", command=self.crear).grid(row=3, column=0, columnspan=2, pady=8)
+
+        def crear(self):
+            u = self.entry_user.get().strip()
+            p = self.entry_pwd.get()
+            c = self.entry_confirm.get()
+            if not u or not p:
+                messagebox.showerror("Error", "Usuario y contraseña requeridos.")
+                return
+            if p != c:
+                messagebox.showerror("Error", "Las contraseñas no coinciden.")
+                return
+            if self.gestor.crear_usuario(u, p):
+                messagebox.showinfo("Éxito", "Usuario creado.")
+                self.destroy()
+            else:
+                messagebox.showerror("Error", "El usuario ya existe.")
+
+
+    class VentanaLogin:
+        def __init__(self, gestor_usuarios):
+            self.gestor = gestor_usuarios
+            self.root = tk.Tk()
+            self.root.title("Login - Sistema Hospitalario")
+            self.root.resizable(False, False)
+
+            frm = ttk.Frame(self.root, padding=10)
+            frm.grid(row=0, column=0)
+
+            ttk.Label(frm, text="Usuario:").grid(row=0, column=0, sticky=tk.W, pady=4)
+            self.entry_user = ttk.Entry(frm)
+            self.entry_user.grid(row=0, column=1, pady=4)
+
+            ttk.Label(frm, text="Contraseña:").grid(row=1, column=0, sticky=tk.W, pady=4)
+            self.entry_pwd = ttk.Entry(frm, show="*")
+            self.entry_pwd.grid(row=1, column=1, pady=4)
+
+            btn_frame = ttk.Frame(frm)
+            btn_frame.grid(row=2, column=0, columnspan=2, pady=8)
+            ttk.Button(btn_frame, text="Entrar", command=self.intentar_entrar).grid(row=0, column=0, padx=6)
+            ttk.Button(btn_frame, text="Registrar", command=self.abrir_registro).grid(row=0, column=1, padx=6)
+
+            self.entry_pwd.bind("<Return>", lambda e: self.intentar_entrar())
+            self.root.mainloop()
+
+        def intentar_entrar(self):
+            u = self.entry_user.get().strip()
+            p = self.entry_pwd.get()
+            if not u or not p:
+                messagebox.showerror("Error", "Ingrese usuario y contraseña.")
+                return
+            if self.gestor.autenticar(u, p):
+                messagebox.showinfo("Bienvenido", f"Sesión iniciada como {u}")
+                self.root.destroy()
+                lanzar_aplicacion(u)
+            else:
+                messagebox.showerror("Error", "Usuario o contraseña incorrectos.")
+
+        def abrir_registro(self):
+            VentanaRegistro(self.root, self.gestor)
+
+
+    # arrancar pantalla de login
+    gestor_usuarios = GestorUsuarios()
+    VentanaLogin(gestor_usuarios)
+    
+    
+def id_pacientes ():
+    if __name__ == "__main__":
+        print(id_pacientes())
+        
+    return randint(1000, 9999)
+        
